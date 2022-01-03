@@ -12,3 +12,6 @@ gdb:
 
 works:
 	hsc2hs Mmap.hsc && ghc -debug -g --make ./Main.hs && ./Main works +RTS -DS
+
+small:
+	hsc2hs Mmap.hsc && ghc -debug -g --make ./Main.hs && ./Main small +RTS -DS

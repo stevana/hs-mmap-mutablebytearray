@@ -26,3 +26,13 @@ Some observations:
   `posix_memalign` syscall to allocate page size aligned memory (it needs to be
   page aligened for `mmap` to work, and the `Foregin` modules don't provide a
   way to do that as far as I could tell.)
+
+* Depending on how big we make the `mmap`ed `MutableByteArray#` we get segfaults
+  at different places. If the bytearray is of the same size as the page size (as
+  is the case when run with `make`), then `gdb` and `backtrace` tell us that the
+  segfault is caused by:
+  https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/sm/BlockAlloc.c#L833 .
+  Whereas if the size of the byte array is smaller (as in the case when run with
+  `make small`), e.g. 16 bytes, then `backtrace` in `gdb` mentions
+  `stg_newAlignedPinnedByteArrayzh`:
+  https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/PrimOps.cmm#L113 .

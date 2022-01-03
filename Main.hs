@@ -130,18 +130,25 @@ freeMBA' (MBA' fptr) = do
 
 -- https://stackoverflow.com/questions/51822946/how-to-align-in-memory-the-array-payload-of-a-bytearray-with-ghc-haskell
 
+doesn'tWork :: Int -> IO ()
+doesn'tWork sz = do
+  let fp = "/tmp/mmap-bug.txt"
+  fallocate fp
+  replicateM_ 20000 $ do
+    mba <- mmapped' fp sz
+    freeMBA' mba
+    return ()
+
 main :: IO ()
 main = do
   args <- getArgs
   case args of
     [] -> do
-      let fp = "/tmp/mmap-bug.txt"
-      fallocate fp
-      replicateM_ 20000 $ do
-        pageSize <- sysconfPageSize
-        mba <- mmapped' fp 64
-        -- This line seems to cause the segfault:
-        -- https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/sm/BlockAlloc.c#L833
-        freeMBA' mba
-        return ()
+      pageSize <- sysconfPageSize
+      doesn'tWork pageSize
+      -- ^ This line seems to cause the segfault:
+      -- https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/sm/BlockAlloc.c#L833
     ["works"] -> worksMmap
+    ["small"] -> doesn'tWork 16
+                 -- ^ `backtrace` in `gdb` mentions `stg_newAlignedPinnedByteArrayzh`:
+                 -- https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/PrimOps.cmm#L113
