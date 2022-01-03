@@ -9,3 +9,6 @@ strace:
 
 gdb:
 	gdb ./Main ./core
+
+works:
+	hsc2hs Mmap.hsc && ghc -debug -g --make ./Main.hs && ./Main works +RTS -DS

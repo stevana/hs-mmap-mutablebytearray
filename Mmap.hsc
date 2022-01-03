@@ -82,7 +82,7 @@ worksMmap :: IO ()
 worksMmap = do
   putStrLn "Starting test"
   pageSz <- sysconfPageSize
-  let sz = 16
+  let sz = pageSz
   flip mapM_ [0..2000000] $ \i -> do
     when (i `mod` 100000 == 0) $
       putStrLn $ "iteration: " ++ show i

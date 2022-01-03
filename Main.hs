@@ -12,6 +12,7 @@ import GHC.ForeignPtr (ForeignPtr(..), ForeignPtrContents(MallocPtr),
                        mallocForeignPtrAlignedBytes)
 import GHC.Types
 import System.Directory
+import System.Environment
 import System.Posix.Fcntl
 import System.Posix.Files
 import System.Posix.IO
@@ -131,12 +132,16 @@ freeMBA' (MBA' fptr) = do
 
 main :: IO ()
 main = do
-  let fp = "/tmp/mmap-bug.txt"
-  fallocate fp
-  replicateM_ 20000 $ do
-    pageSize <- sysconfPageSize
-    mba <- mmapped' fp pageSize
-    -- This line seems to cause the segfault:
-    -- https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/sm/BlockAlloc.c#L833
-    freeMBA' mba
-    return ()
+  args <- getArgs
+  case args of
+    [] -> do
+      let fp = "/tmp/mmap-bug.txt"
+      fallocate fp
+      replicateM_ 20000 $ do
+        pageSize <- sysconfPageSize
+        mba <- mmapped' fp 64
+        -- This line seems to cause the segfault:
+        -- https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/sm/BlockAlloc.c#L833
+        freeMBA' mba
+        return ()
+    ["works"] -> worksMmap
