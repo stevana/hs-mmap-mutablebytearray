@@ -23,8 +23,6 @@ int step(void) {
   if (res != 0)
     printf("posix_memalign failed\n");
 
-  printf("pagesize: %d\n", pagesize);
-
   addr = mmap(buf, pagesize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, fd, 0);
   if (addr == MAP_FAILED) {
     printf("mmap 2 failed\n");
@@ -80,7 +78,7 @@ int main (void) {
   for (i = 0; i < 1000000; i++) {
     if (i % 1000 == 0)
       printf("iteration: %d\n", i);
-    res = mmap_mmapped();
+    res = step(); // mmap_mmapped();
     if (res != 0) {
       printf("step failed: %d\n", res);
       exit(res);

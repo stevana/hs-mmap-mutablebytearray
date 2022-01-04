@@ -36,3 +36,13 @@ Some observations:
   `make small`), e.g. 16 bytes, then `backtrace` in `gdb` mentions
   `stg_newAlignedPinnedByteArrayzh`:
   https://gitlab.haskell.org/ghc/ghc/-/blob/master/rts/PrimOps.cmm#L113 .
+
+After asking in #haskell and #ghc on IRC the following was pointed out to me:
+
+* A similar request about being able to `mmap` byte arrays has been
+  discussed in the following ticket:
+
+    https://gitlab.haskell.org/ghc/ghc/-/issues/17747 
+
+* The problems can perhaps be avoided by first `mmap`ing a `Ptr`
+  then using `fetchAndWordAddr#` rather than working with byte arrays.
